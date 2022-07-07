@@ -1,0 +1,864 @@
+TYPE DEFINITION STRUCTURE plan_type
+	DECLARE name, monthly_premium, annual_limit, lifetime_limit, room_charges, icu_charges AS INTEGER
+ENDSTRUCTURE
+plan_type plan120 = { 120,120,12000000,60000000,120,250 }
+plan_type plan150 = { 150,150,15000000,75000000,150,400 }
+plan_type plan200 = { 200,200,20000000,100000000,200,700 }
+p1 AS plan120 POINTER 
+p2 AS plan150 POINTER 
+p3 AS plan200 POINTER 
+
+FUNCTION plan_name(plan_type POINTER)
+	PRINT newline
+	PRINT(“Plan Name: Plan”+(plan_type POINTER).name)
+	PRINT newline
+	PRINT("Monthly Premium: "+(plan_type POINTER).monthly_premium)
+	PRINT newline
+	PRINT("Annual Claim Limit: "+annual_limit)
+	PRINT newline
+	PRINT("Lifetime Claim Limit: "+lifetime_limit)
+	PRINT newline
+	PRINT("Room Charges : "+room_charges+" / day")
+	PRINT newline
+	PRINT("Intensive Care Unit(ICU) Charge : "+icu_charges+" / day")
+	PRINT newline
+	PRINT("Hospital Supplies and Services: As charged. Subject to approval by ZeeMediLife")
+	PRINT newline
+	PRINT("Surgical Fees: As charged. Subject to approval by ZeeMediLife.")
+	PRINT newline
+	PRINT("Other Fees: As charged. Subject to approval by ZeeMediLife.")
+ENDFUNCTION
+
+FUNCTION subscription()
+	DECLARE plan_type chosen_plan AS STRUCTURE
+	year = 'NULL'
+	main_repeat=1
+	WHILE (main_repeat = 1) THEN
+		repeat=1
+		WHILE (repeat=1) THEN
+			repeat=0
+			PRINT newline
+			age = READ ("Enter your age, (999) to exit:")
+			IF (age=0) THEN
+				PRINT newline
+				days = READ "How many days old the baby is:"
+				IF (days>=15) THEN
+					age_group=1
+				ELSE
+					PRINT "Your baby is not eligible for applying any plans."
+					repeat=1
+				ENDIF
+			ELSEIF ((age>=1) AND (age<=20)) THEN
+				age_group=1
+			ELSEIF ((age>=21) AND (age<=40)) THEN
+				age_group=2	
+			ELSEIF ((age>=41) AND (age<=54)) THEN
+				age_group=3
+			ELSEIF (age=999) THEN
+				PRINT newline
+				RETURN
+			ELSE
+				PRINT newline
+				PRINT "Your age is not eligible for applying any plans."
+				repeat=1
+			ENDIF
+		ENDWHILE
+		
+		repeat=1
+		IF (age_group=1) THEN
+			PRINT newline
+			PRINT "You are eligible for applying the following plans:"
+			PRINT newline
+			PRINT "1. Plan120"
+			CALL plan_name(p1)
+			PRINT "2. Plan150"
+			CALL plan_name(p2)
+			PRINT "3. Plan200"
+			CALL plan_name(p3)
+			WHILE (repeat=1) THEN
+				repeat=0
+				PRINT newline
+				plan = READ "Enter your choice:"
+				IF (plan=1) THEN
+					chosen_plan=plan120
+				ELSEIF (plan=2) THEN
+					chosen_plan=plan150
+				ELSEIF (plan=3) THEN
+					chosen_plan=plan200
+				ELSE
+					PRINT newline
+					PRINT "Please choose a listed plan."
+					repeat=1
+				ENDIF
+			ENDWHILE
+		ELSEIF (age_group=2) THEN
+			PRINT newline
+			PRINT "You are eligible for applying the following plans:"
+			PRINT newline
+			PRINT "1. Plan150"
+			CALL plan_name(p2)
+			PRINT "2. Plan200"
+				CALL plan_name(p3)
+				WHILE (repeat=1) THEN
+				repeat=0
+				PRINT newline
+				plan = READ "Enter your choice:"
+				IF (plan=1) THEN
+					chosen_plan=plan150
+				ELSEIF (plan=2) THEN
+					chosen_plan=plan200
+				ELSE
+					PRINT newline
+					PRINT "Please choose a listed plan."
+					repeat=1
+				ENDIF
+			ENDWHILE
+		ELSEIF (age_group=3) THEN
+			PRINT newline
+			PRINT "You are eligible for applying the following plans:"
+			PRINT newline
+			PRINT "1. Plan200"
+			CALL plan_name(p3)
+			WHILE (repeat=1) THEN
+				repeat=0
+				PRINT newline
+				plan = READ "Enter your choice:"
+				IF (plan=1) THEN
+					chosen_plan=plan200
+				ELSE
+					PRINT newline
+					PRINT "Please choose a listed plan."
+					repeat=1
+				ENDIF
+			ENDWHILE
+		ENDIF
+		
+		repeat=1
+		PRINT newline
+		PRINT("Please choose a claim limit type:")
+		PRINT newline
+		PRINT("1. Annual Claim Limit")
+		PRINT newline
+		PRINT("2. Lifetime Claim Limit")
+		WHILE (repeat=1) THEN
+			repeat=0
+			claim= READ "Enter your choice:"
+			IF (claim=1) THEN
+				chosen_claim="Annual Claim Limit"
+				chosen_plan.lifetime_limit IS NULL
+			ELSEIF (claim=2) THEN
+				chosen_claim="Lifetime Claim Limit"
+				chosen_plan.annual_limit IS NULL
+			ELSE
+				PRINT newline
+				PRINT("Please choose a listed claim limit.")
+				repeat=1
+			ENDIF
+		ENDWHILE
+
+		cus_name = READ("Name: ")
+		CALL no_spaces(cus_name,name)
+		cus_contact_number = READ("Contact Number: ")
+		CALL no_spaces(cus_contact_number,contact_number)
+		cus_house_number = READ("House Number: ")
+		CALL no_spaces(cus_house_number,house_number)
+		cus_street = READ("Street: ")
+		CALL no_spaces(cus_street,street)
+		cus_city = READ("City: ")
+		CALL no_spaces(cus_city,city)
+		cus_state = READ("State: ")
+		CALL no_spaces(cus_state,state)
+		cus_health_history = READ("Health History: ")
+		CALL no_spaces(cus_health_history,health_history)
+		
+		count=0
+		CASE based on chosen_plan.name
+			CASE 120
+				OPEN and READ Plan120.txt AS f_subscribe
+				OPEN and READ Claim_plan120.txt AS f_claim
+				BREAK
+			CASE150
+				OPEN and READ Plan150.txt AS f_subscribe
+				OPEN and READ Claim_plan150.txt AS f_claim
+				BREAK
+			CASE 200
+				OPEN and READ Plan200.txt AS f_subscribe
+				OPEN and READ Claim_plan200.txt AS f_claim
+				BREAK
+			DEFAULT
+				PRINT "File cannot be opened."
+		ENDCASE
+		WHILE EACH line IN f_subscribe
+			count = count +1
+		ENDWHILE
+		IF (count<10) THEN
+			id = "00" + count
+		ELSEIF (count-2<100) THEN
+			id = "0" + count
+		ELSE
+			id = count
+		ENDIF
+		customer_id = age_group + chosen_plan.name + id
+		add customer_id into f_subscribe
+		add name into f_subscribe
+		add age into f_subscribe
+		add contact_number into f_subscribe
+		add house_number into f_subscribe
+		add street into f_subscribe
+		add city into f_subscribe
+		add state into f_subscribe
+		add health_history into f_subscribe
+		add chosen_plan.name into f_subscribe
+		add chosen_claim into f_subscribe
+		
+		add customer_id into f_claim
+		add year into f_claim
+		add (chosen_plan.annual_limit/100) into f_claim
+		add (chosen_plan.annual_limit%100) into f_claim
+		add (chosen_plan.lifetime_limit/100) into f_claim
+		add (chosen_plan.lifetime_limit%100) into f_claim
+		
+		CLOSE f_subscribe
+		CLOSE f_claim
+		
+		PRINT newline
+		PRINT("Customer ID: "+customer_id)
+		PRINT newline
+		PRINT("Name: "+cus_name)
+		PRINT newline
+		PRINT("Age: "+age)
+		PRINT newline
+		PRINT("Phone Number: "+cus_contact_number)
+		PRINT newline
+		PRINT("Address:"+cus_house_number+cus_street+cus_city+cus_state)
+		PRINT newline
+		PRINT("Health History:"+cus_health_history)
+		PRINT newline
+		PRINT("Chosen Plan: Plan"+chosen_plan.name)
+		PRINT newline
+		PRINT("Claim Limit Type: "+chosen_claim)
+		
+		main_repeat = 1
+	ENDWHILE
+	
+ENDFUNCTION
+
+---------------------------------------------------------------------------------------------------	
+
+FUNCTION claim()
+	DECLARE plan_type chosen_plan AS STRUCTURE
+	year=2020
+	day_ward=0
+	day_icu=0
+	services=0
+	surgery=0
+	others=0
+	main_repeat=1
+	WHILE (main_repeat=1) THEN
+		repeat=1
+		WHILE (repeat=1) THEN
+			customer_id= READ ("Enter customer ID, 999 to exit:")
+			IF (customer_id=999) THEN
+				RETURN
+			ENDIF
+			FOR	a FROM 0 TO 2 STEP 1
+				CASE based on a
+					CASE 0
+						OPEN and READ Claim_plan120.txt AS f_claim
+						chosen_plan=plan120
+						BREAK
+					CASE 1
+						OPEN and READ Claim_plan150.txt AS f_claim
+						chosen_plan=plan150
+						BREAK
+					CASE 2
+						OPEN and READ Claim_plan200.txt AS f_claim
+						chosen_plan=plan200	
+						BREAK
+					DEFAULT
+						PRINT "File cannot be opened."
+				ENDCASE	
+				
+				FOR EACH line IN f_claim
+					FOR EACH index,line IN ENUMERATE(f_claim)
+						input_id = f_claim[index]
+						IF (input_id = customer_id) THEN
+							claim_in_rm=f_claim[index]
+							claim_in_sen=f_claim[index]
+							yearleft_rm=f_claim[index]
+							yearleft_sen=f_claim[index]
+							lifeleft_rm=f_claim[index]
+							lifeleft_sen=f_claim[index]
+							amount_claim = claim_in_rm * 100 + claim_in_sen
+							amount_year = yearleft_rm * 100 + yearleft_sen
+							amount_life = lifeleft_rm * 100 + lifeleft_sen
+							CLOSE f_claim
+							BREAK
+						ELSE
+							NEXT line
+						ENDIF
+					ENDFOR
+				ENDFOR
+				
+				CASE based on chosen_plan.name
+					CASE 120
+						OPEN and READ Plan120.txt AS f_subscribe
+						BREAK
+					CASE 150
+						OPEN and READ Plan150.txt AS f_subscribe
+						BREAK
+					CASE 200
+						OPEN and READ Plan200.txt AS f_subscribe
+				ENDCASE
+							
+				FOR EACH line IN f_subscribe
+					FOR EACH index,line IN ENUMERATE(f_subscribe)
+						input_id = f_subscribe[index]
+						IF (input_id = customer_id) THEN
+							chosen_claim=f_subscribe[index+9]
+							CLOSE f_subscribe
+							repeat=0
+							BREAK
+						ELSE
+							NEXT line
+						ENDIF
+					ENDFOR
+				ENDFOR
+			ENDFOR
+			
+			day_ward = READ "How many days do you stay in normal wards: "
+			day_icu = READ "How many days do you stay in ICU: "
+			services = READ "Enter the amount of hospital supplies and services in RM: "
+			surgery = READ "Enter the amount of surgical fees in RM: "
+			others = READ "Enter the amount of other fees in RM: "
+			
+			sum = (day_ward * chosen_plan.room_charges + day_icu * chosen_plan.icu_charges + services + surgery + others) * 100
+			
+			IF (chosen_claim="Lifetime Claim Limit") THEN
+				IF (sum > amount_life)
+					PRINT "Your available balance for current plan is not enough."
+					sum = amount_life
+				ENDIF
+			ELSE
+				IF (sum > amount_year)
+					PRINT "Your available balance for current plan is not enough."
+					sum = amount_year
+				ENDIF
+			ENDIF
+			
+			CASE based on chosen_plan.name
+				CASE 120
+					OPEN and READ Claim_plan120.txt AS f_claim
+					BREAK
+				CASE 150
+					OPEN and READ Claim_plan150.txt AS f_claim
+					BREAK
+				CASE 200
+					OPEN and READ Claim_plan200.txt AS f_claim
+			ENDCASE
+
+			updated_amount_claim_rm = (amount_claim + sum) / 100
+			updated_amount_claim_sen = (amount_claim + sum) % 100
+			updated_amount_life_rm = (amount_life - sum) / 100
+			updated_amount_life_sen = (amount_life - sum) % 100
+			updated_amount_year_rm = (amount_year - sum) / 100
+			updated_amount_year_sen = (amount_year - sum) % 100
+			
+			IF (chosen_claim="Lifetime Claim Limit") THEN
+				add customer_id into f_claim
+				add year into f_claim
+				add updated_amount_claim_rm into f_claim
+				add updated_amount_claim_sen into f_claim
+				add updated_amount_life_rm into f_claim
+				add updated_amount_life_sen into f_claim
+			ELSE
+				add customer_id into f_claim
+				add year into f_claim
+				add updated_amount_claim_rm into f_claim
+				add updated_amount_claim_sen into f_claim
+				add updated_amount_year_rm into f_claim
+				add updated_amount_year_sen into f_claim
+			ENDIF
+
+			CLOSE f_claim
+			main_repeat=1
+			
+		ENDWHILE
+	ENDWHILE
+ENDFUNCTION 
+
+---------------------------------------------------------------------------------------------------	
+
+FUNCTION information()
+	a=0
+	b=0
+	total_amount_claimed = 0
+	num_exsubscriber = 0
+	DECLARE num_lifesubscriber[1000][10]
+	DECLARE num_yearsubscriber[1000][10]
+	FOR c FROM 0 TO 2 STEP 1
+		CASE based on c
+			CASE 0
+				OPEN and READ Plan120.txt AS f_subscribe
+				BREAK
+			CASE 1
+				OPEN and READ Plan150.txt AS f_subscribe
+				BREAK
+			CASE 2
+				OPEN and READ Plan200.txt AS f_subscribe
+		ENDCASE
+		FOR EACH line IN f_subscribe
+			GET chosen_claim FROM f_subscribe
+			GET customer_id FROM f_subscribe
+			IF (chosen_claim="Lifetime Claim Limit") THEN
+				num_lifesubscriber[a]=customer_id
+				a=a+1
+			ELSE
+				num_yearsubscriber[a]= customer_id
+				b=b+1
+			ENDIF
+		ENDFOR
+		CLOSE f_subscribe
+	ENDFOR
+	
+	FOR d FROM 0 TO 2 STEP 1
+		CASE based on d
+			CASE 0
+				FOR c FROM 0 TO 2 STEP 1
+					CASE based on c
+						CASE 0
+							OPEN and READ Claim_plan120.txt AS f_claim
+							BREAK
+						CASE 1
+							OPEN and READ Claim_plan150.txt AS f_claim
+							BREAK
+						CASE 2
+							OPEN and READ Claim_plan200.txt AS f_claim
+					ENDCASE
+					FOR EACH line IN f_claim
+						GET customer_id FROM f_claim
+						GET claim_in_rm FROM f_claim
+						GET claim_in_sen FROM f_claim
+						FOR a FROM 0 TO 999 STEP 1
+							IF ( num_lifesubscriber[a] = customer_id ) THEN
+								amount_claim = claim_in_rm * 100 + claim_in_sen
+								total_amount_claimed = total_amount_claimed + amount_claim
+							ENDIF
+						ENDFOR
+					ENDFOR
+				ENDFOR
+				BREAK
+			CASE 1
+				FOR c FROM 0 TO 2 STEP 1
+					CASE based on c
+						CASE 0
+							OPEN and READ Claim_plan120.txt AS f_claim
+							BREAK
+						CASE 1
+							OPEN and READ Claim_plan150.txt AS f_claim
+							BREAK
+						CASE 2
+							OPEN and READ Claim_plan200.txt AS f_claim
+					ENDCASE
+					FOR EACH line IN f_claim
+						GET customer_id FROM f_claim
+						GET yearleft_rm FROM f_claim
+						GET yearleft_sen FROM f_claim
+						FOR a FROM 0 TO 999 STEP 1
+							IF ( num_yearsubscriber[a] = customer_id ) THEN
+								amount_year = yearleft_rm * 100 + yearleft_sen
+								IF (amount_year=0) THEN
+									num_exsubscriber = num_exsubscriber + 1
+								ENDIF
+							ENDIF
+						ENDFOR
+					ENDFOR
+				ENDFOR
+		ENDCASE
+	ENDFOR
+	CLOSE f_claim
+	PRINT newline
+	PRINT ("Total amount claimed by Lifetime Claim Limit subscribers(RM): "+ total_amount_claimed / 100 + total_amount_claimed % 100)
+	PRINT newline
+	PRINT ("Total number of Annual Claim Limit subscribers who have exhausted all their eligible amount: " + num_exsubscriber)
+ENDFUNCTION 
+
+---------------------------------------------------------------------------------------------------	
+
+FUNCTION search()
+	main_repeat=1
+	WHILE (main_repeat=1) THEN
+		main_repeat=0
+		PRINT newline
+		PRINT "Do you want use searching functionalities by entering: "
+		PRINT newline
+		PRINT "1. Customer ID or Name"
+		PRINT newline
+		PRINT "2. Plan, Claim Limit Type and Age"
+		PRINT newline
+		PRINT "999. Exit"
+		choice= READ ("Enter your choice: ")
+		CASE based on choice
+			CASE 1
+				repeat=1
+				WHILE (repeat=1) THEN
+					repeat=0
+					PRINT newline
+					PRINT "Do you want use searching functionalities by entering: "
+					PRINT newline
+					PRINT "1. Customer ID"
+					PRINT newline
+					PRINT "2. Customer Name"
+					choice= READ ("Enter your choice: ")
+					CASE based on choice
+						CASE 1
+							name_or_id = READ "Enter Customer ID: "
+							FOR a FROM 0 TO 2 STEP 1
+								CASE based on a
+									CASE 0
+										OPEN and READ Plan120.txt AS f_subscribe
+										OPEN and READ Claim_plan120.txt AS f_claim
+										BREAK
+									CASE 1
+										OPEN and READ Plan150.txt AS f_subscribe
+										OPEN and READ Claim_plan150.txt AS f_claim
+										BREAK
+									CASE 2
+										OPEN and READ Plan200.txt AS f_subscribe
+										OPEN and READ Claim_plan200.txt AS f_claim
+								ENDCASE
+								FOR EACH line IN f_subscribe
+									GET customer_id FROM f_subscribe
+									IF (customer_id = name_or_id ) THEN
+										GET name FROM f_subscribe
+										GET age FROM f_subscribe
+										GET contact_number FROM f_subscribe
+										GET house_number FROM f_subscribe
+										GET street FROM f_subscribe
+										GET city FROM f_subscribe
+										GET state FROM f_subscribe
+										GET health_history FROM f_subscribe
+										GET plan FROM f_subscribe
+										GET chosen_claim FROM f_subscribe
+										FOR EACH line IN f_claim
+											GET cus FROM f_claim
+											GET name_or_id FROM f_claim
+											GET amount_year FROM f_claim
+											GET amount_claim FROM f_claim
+											GET chosen_claim FROM f_claim
+											GET balance FROM f_claim
+										ENDFOR
+										CLOSE f_claim
+										PRINT newline
+										PRINT ("Customer ID: " + customer_id)
+										PRINT newline
+										PRINT ("Name: " + name)
+										PRINT newline
+										PRINT ("Age: " + age)
+										PRINT newline
+										PRINT ("Contact Number: " + contact_number)
+										PRINT newline
+										PRINT ("Address:" + house_number + street + city + state)
+										PRINT newline
+										PRINT ("Health History: " + health_history)
+										PRINT newline
+										PRINT ("Plan: " + plan)
+										PRINT newline
+										PRINT ("Claim Limit Type: " + chosen_claim)
+										PRINT newline
+										PRINT ("Claimed Year: " + amount_year)
+										PRINT newline
+										PRINT ("Total of Claimed Insurance: " + amount_claim)
+										PRINT newline
+										PRINT ("Available Balance: " + balance)
+										repeat=0
+										BREAK
+									ENDIF
+								ENDIF
+								CLOSE f_subscribe
+								IF (repeat=0) THEN 
+									BREAK
+								ENDIF
+							ENDFOR
+							IF (repeat=1) THEN
+								PRINT "Please enter a valid customer ID."
+							ENDIF
+							BREAK
+						CASE 2
+							repeat=1
+							WHILE (repeat=1) THEN
+								cus_name = READ ("Customer Name: ")
+								CALL no_spaces(cus_name,name_or_id)
+								FOR a FROM 0 TO 2 STEP 1
+									CASE based on a
+										CASE 0
+											OPEN and READ Plan120.txt AS f_subscribe
+											OPEN and READ Claim_plan120.txt AS f_claim
+											BREAK
+										CASE 1
+											OPEN and READ Plan150.txt AS f_subscribe
+											OPEN and READ Claim_plan150.txt AS f_claim
+											BREAK
+										CASE 2
+											OPEN and READ Plan200.txt AS f_subscribe
+											OPEN and READ Claim_plan200.txt AS f_claim
+									ENDCASE
+									FOR EACH line IN f_subscribe
+										GET customer_id FROM f_subscribe
+										GET name FROM f_subscribe
+										IF (name=name_or_id) THEN
+											GET name FROM f_subscribe
+											GET age FROM f_subscribe
+											GET contact_number FROM f_subscribe
+											GET house_number FROM f_subscribe
+											GET street FROM f_subscribe
+											GET city FROM f_subscribe
+											GET state FROM f_subscribe
+											GET health_history FROM f_subscribe
+											GET plan FROM f_subscribe
+											GET chosen_claim FROM f_subscribe
+											FOR EACH line IN f_claim
+												GET cus FROM f_claim
+												GET customer_id FROM f_claim
+												GET amount_year FROM f_claim
+												GET amount_claim FROM f_claim
+												GET chosen_claim FROM f_claim
+												GET balance FROM f_claim
+											ENDFOR
+											CLOSE f_claim
+											PRINT newline
+											PRINT ("Customer ID: " + customer_id)
+											PRINT newline
+											PRINT ("Name: " + name)
+											PRINT newline
+											PRINT ("Age: " + age)
+											PRINT newline
+											PRINT ("Contact Number: " + contact_number)
+											PRINT newline
+											PRINT ("Address:" + house_number + street + city + state)
+											PRINT newline
+											PRINT ("Health History: " + health_history)
+											PRINT newline
+											PRINT ("Plan: " + plan)
+											PRINT newline
+											PRINT ("Claim Limit Type: " + chosen_claim)
+											PRINT newline
+											PRINT ("Claimed Year: " + amount_year)
+											PRINT newline
+											PRINT ("Total of Claimed Insurance: " + amount_claim)
+											PRINT newline
+											PRINT ("Available Balance: " + balance)
+											repeat=0
+											BREAK
+										ENDIF
+										IF (repeat=1) THEN
+											PRINT "Please enter a valid customer ID."
+										ENDIF
+									ENDFOR
+								ENDFOR
+							ENDWHILE
+							BREAK
+						DEFAULT
+							PRINT "Please enter a valid input."
+							repeat = 1
+					ENDCASE
+				ENDWHILE
+				BREAK
+			CASE 2
+				repeat=1
+				PRINT newline
+				PRINT "Please select a plan:"
+				PRINT newline
+				PRINT "1. Plan120"
+				PRINT newline
+				PRINT "2. Plan150"
+				PRINT newline
+				PRINT "3. Plan200"
+				WHILE (repeat=1) THEN
+					repeat=0
+					choice=READ "Enter Choice:"
+					CASE based on choice
+						CASE 1
+							cus_plan = 120
+							BREAK
+						CASE 2
+							cus_plan = 150
+							BREAK
+						CASE 3
+							cus_plan = 200
+							BREAK
+						DEFAULT
+							PRINT "Please select a valid plan."
+							repeat=1
+					ENDCASE
+				ENDWHILE
+				repeat=1
+				PRINT newline
+				PRINT "Please choose a claim limit type:"
+				PRINT newline
+				PRINT "1.Annual Claim Limit"
+				PRINT newline
+				PRINT "2.Lifetime Claim Limit"
+				WHILE (repeat=1) THEN
+					repeat=0
+					choice=READ "Enter Choice:"
+					CASE based on choice
+						CASE 1
+							cus_chosen_plan = "Annual Claim Limit"
+							BREAK
+						CASE 2
+							cus_chosen_plan = "Lifetime Claim Limit"
+							BREAK
+						DEFAULT
+							PRINT "Please choose a listed claim limit type."
+							repeat=1
+					ENDCASE
+				ENDWHILE
+				cus_age = READ "Enter age: "
+				FOR a FROM 0 TO 2 STEP 1
+					CASE based on a
+						CASE 0
+							OPEN and READ Plan120.txt AS f_subscribe
+							OPEN and READ Claim_plan120.txt AS f_claim
+							BREAK
+						CASE 1
+							OPEN and READ Plan150.txt AS f_subscribe
+							OPEN and READ Claim_plan150.txt AS f_claim
+							BREAK
+						CASE 2
+							OPEN and READ Plan200.txt AS f_subscribe
+							OPEN and READ Claim_plan200.txt AS f_claim
+					ENDCASE
+					FOR EACH line IN f_subscribe
+						GET customer_id FROM f_subscribe
+						GET name FROM f_subscribe
+						GET age FROM f_subscribe
+						GET contact_number FROM f_subscribe
+						GET house_number FROM f_subscribe
+						GET street FROM f_subscribe
+						GET city FROM f_subscribe
+						GET state FROM f_subscribe
+						GET health_history FROM f_subscribe
+						GET plan FROM f_subscribe
+						GET chosen_claim FROM f_subscribe
+						IF ( (cus_plan=plan) AND (cus_chosen_plan=chosen_claim) AND (cus_age=age) ) THEN
+							FOR EACH line IN f_claim
+								GET cus FROM f_claim
+								GET customer_id FROM f_claim
+								GET amount_year FROM f_claim
+								GET amount_claim FROM f_claim
+								GET chosen_claim FROM f_claim
+								GET balance FROM f_claim
+							ENDFOR
+							CLOSE f_claim
+							PRINT newline
+							PRINT ("Customer ID: " + customer_id)
+							PRINT newline
+							PRINT ("Name: " + name)
+							PRINT newline
+							PRINT ("Age: " + age)
+							PRINT newline
+							PRINT ("Contact Number: " + contact_number)
+							PRINT newline
+							PRINT ("Address:" + house_number + street + city + state)
+							PRINT newline
+							PRINT ("Health History: " + health_history)
+							PRINT newline
+							PRINT ("Plan: " + plan)
+							PRINT newline
+							PRINT ("Claim Limit Type: " + chosen_claim)
+							PRINT newline
+							PRINT ("Claimed Year: " + amount_year)
+							PRINT newline
+							PRINT ("Total of Claimed Insurance: " + amount_claim)
+							PRINT newline
+							PRINT ("Available Balance: " + balance)
+							repeat=0
+						ENDIF
+					ENDFOR
+				ENDFOR
+				IF (repeat=1) THEN
+					PRINT "Can't find the specific age."
+				ENDIF
+				BREAK
+			CASE 999
+				RETURN
+				BREAK
+			DEFAULT
+				PRINT newline
+				PRINT "Please select the available choice."
+				main_repeat=1
+		ENDCASE
+	ENDWHILE
+ENDFUNCTION 
+
+---------------------------------------------------------------------------------------------------	
+
+FUNCTION create_file()
+	OPEN and CLOSE Plan120.txt
+	OPEN and CLOSE Plan150.txt
+	OPEN and CLOSE Plan200.txt
+	OPEN and CLOSE Claim_plan120.txt
+	OPEN and CLOSE Claim_plan150.txt
+	OPEN and CLOSE Claim_plan200.txt
+ENDFUNCTION
+
+FUNCTION menu()
+	statement=1
+	WHILE statement EQUAL TO 1 THEN
+		PRINT "HEALTH INSURANCE MANAGEMENT SYSTEM"
+		PRINT newline
+		PRINT "Please select one of the functions:"
+		PRINT newline
+		PRINT "1. Insurance Plan Subscription"
+		PRINT newline
+		PRINT "2. Claim Processing"
+		PRINT newline
+		PRINT "3. Accounts Information"
+		PRINT newline
+		PRINT "4. Searching Functionalities"
+		PRINT newline
+		PRINT "5. Exit"
+		choice=READ("Enter your choice:")
+		CASE based on choice
+			CASE 1
+				CALL subscription()
+				BREAK
+			CASE 2
+				CALL claim()
+				BREAK
+			CASE 3
+				CALL information()
+				BREAK
+			CASE 4
+				CALL search()
+				BREAK
+			CASE 5
+				RETURN
+				BREAK
+			DEFAULT
+				PRINT newline
+				PRINT("Invalid Input.")
+				statement=1
+		ENDCASE
+	ENDWHILE
+ENDFUNCTION
+
+FUNCTION no_spaces(CHARACTER store[],CHARACTER filter[])
+	a=0
+	b=0
+	FOR a FROM 0 TO (store[a] IS NOT EQUAL TO NULL) STEP 1
+		IF (store[a] IS NOT EQUAL TO ' ')
+			filter[b] = store[a]
+			b = b + 1
+		ENDIF
+	ENDFOR
+	filter[b] = NULL
+ENDFUNCTION
+
+PROGRAM HealthInsuranceManagementSystem
+BEGIN
+	CALL create_file()
+	CALL menu()
+END
+
